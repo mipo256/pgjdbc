@@ -605,19 +605,12 @@ public class QueryExecutorImpl extends QueryExecutorBase {
     processDeadPortals();
 
     // Send BEGIN on first statement in transaction.
-    if ((flags & QueryExecutor.QUERY_SUPPRESS_BEGIN) != 0
+    if (doNotNeedToSendBegin(flags)
         || getTransactionState() != TransactionState.IDLE) {
       return delegateHandler;
     }
 
-    int beginFlags = QueryExecutor.QUERY_NO_METADATA;
-    if ((flags & QueryExecutor.QUERY_ONESHOT) != 0) {
-      beginFlags |= QueryExecutor.QUERY_ONESHOT;
-    }
-
-    beginFlags |= QueryExecutor.QUERY_EXECUTE_AS_SIMPLE;
-
-    beginFlags = updateQueryMode(beginFlags);
+    int beginFlags = QueryExecutor.QUERY_EXECUTE_AS_SIMPLE;
 
     final SimpleQuery beginQuery = (flags & QueryExecutor.QUERY_READ_ONLY_HINT) == 0 ? beginTransactionQuery : beginReadOnlyTransactionQuery;
 
@@ -648,6 +641,10 @@ public class QueryExecutorImpl extends QueryExecutorBase {
         }
       }
     };
+  }
+
+  private static boolean doNotNeedToSendBegin(int flags) {
+    return (flags & QueryExecutor.QUERY_SUPPRESS_BEGIN) != 0;
   }
 
   //

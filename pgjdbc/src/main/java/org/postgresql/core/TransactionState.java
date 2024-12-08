@@ -6,7 +6,19 @@
 package org.postgresql.core;
 
 public enum TransactionState {
+
+  /**
+   * No transaction in progress yet
+   */
   IDLE,
+
+  /**
+   * Currently inside transaction
+   */
   OPEN,
+
+  /**
+   * Currently inside the failed transaction. All changes in this transaction would be rolled back.
+   */
   FAILED
 }
